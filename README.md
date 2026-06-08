@@ -61,8 +61,8 @@ Both roles support text and file uploads (e.g. user uploads a PDF, AI "returns" 
 1. Clone or download this repository:
 
    ```bash
-   git clone <repository-url>
-   cd TokenCounter
+   git clone https://github.com/Nopals-sub/Tokky.git
+   cd Tokky
    ```
 
 2. Create and activate a virtual environment (recommended):
@@ -124,7 +124,7 @@ Each message is counted with a `[role]` prefix plus its text and extracted file 
 ## Project Structure
 
 ```
-TokenCounter/
+Tokky/
 ├── app.py              # Flask app & API routes
 ├── config.py           # Providers, models, allowed extensions
 ├── services.py         # File & conversation analysis logic
