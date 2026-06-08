@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% set active_mode = "chat" %}
+
+{% block title %}Chat Mode — Tokky{% endblock %}
+
+{% block content %}
+<div class="h-full flex overflow-hidden">
+    <!-- Conversation Area (Middle Panel) -->
+    <div class="flex-1 flex flex-col min-w-0 border-r border-border-subtle">
+        <!-- Conversation Header -->
+        <header class="shrink-0 px-6 py-4 border-b border-border-subtle bg-bg-primary flex flex-col gap-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-sm font-bold text-text-primary uppercase tracking-tight">Conversation</h2>
+                    <span class="text-[10px] px-1.5 py-0.5 bg-bg-elevated text-text-muted rounded border border-border-subtle uppercase font-bold" id="session-name">New Session</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" class="text-[10px] font-bold uppercase tracking-wider text-text-muted hover:text-danger transition-colors px-2 py-1" id="clear-chat-btn">
+                        Clear Thread
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Context Usage Bar -->
+            <div class="flex flex-col gap-1.5" id="context-usage-container">
+                <div class="flex justify-between items-end text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                    <div class="flex gap-2">
+                        <span>Context Usage</span>
+                        <span id="context-usage-text">0 / 128,000 tokens</span>
+                    </div>
+                    <span id="context-usage-pct">0%</span>
+                </div>
+                <div class="h-1.5 bg-bg-elevated rounded-full overflow-hidden border border-border-subtle">
+                    <div id="context-usage-fill" class="h-full bg-success transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Message Thread -->
+        <div id="conversation" class="flex-1 overflow-y-auto p-6 flex flex-col bg-bg-primary custom-scrollbar">
+            <div id="messages-list" class="flex flex-col gap-8 w-full max-w-3xl mx-auto"></div>
+            
+            <div class="flex-1 flex flex-col items-center justify-center py-20 opacity-40" id="empty-hint">
+                <div class="w-16 h-16 bg-bg-elevated rounded-2xl flex items-center justify-center mb-4 border border-border-subtle">
+                    <i data-lucide="message-square-plus" class="w-8 h-8 text-text-muted"></i>
+                </div>
+                <p class="text-sm font-medium text-text-secondary">Start a new conversation thread</p>
+                <p class="text-[10px] text-text-muted mt-1 uppercase tracking-widest">Press Enter to send</p>
+            </div>
+        </div>
+
+        <!-- Composer Area -->
+        <div id="composer-container" class="shrink-0 p-6 bg-bg-primary">
+            <div class="max-w-3xl mx-auto flex flex-col gap-3">
+                <div class="bg-bg-elevated border border-border-default rounded-xl focus-within:border-accent transition-all duration-200 overflow-hidden shadow-lg shadow-black/20">
+                    <textarea id="message-text" class="w-full bg-transparent border-none text-text-primary placeholder-text-muted font-medium p-4 text-sm outline-none resize-none max-h-[160px] custom-scrollbar" rows="1" placeholder="Type your message..."></textarea>
+                    
+                    <div class="px-4 py-2 flex justify-between items-center border-t border-border-subtle bg-bg-surface/30">
+                        <div class="flex items-center gap-1">
+                            <label class="p-1.5 text-text-muted hover:text-text-primary hover:bg-bg-hover rounded-md cursor-pointer transition-all" title="Attach Files">
+                                <i data-lucide="paperclip" class="w-4 h-4"></i>
+                                <input type="file" id="message-files" multiple accept=".{{ allowed_extensions | join(',.') }}" class="hidden">
+                            </label>
+                            
+                            <div class="h-4 w-[1px] bg-border-subtle mx-1"></div>
+                            
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-bold text-text-muted uppercase tracking-widest ml-1">Role:</span>
+                                <select id="role-selector" class="bg-transparent text-[10px] font-bold text-text-primary uppercase tracking-widest outline-none cursor-pointer hover:text-accent transition-colors">
+                                    <option value="user">User</option>
+                                    <option value="assistant">Assistant</option>
+                                    <option value="system">System</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="text-[10px] font-mono text-text-muted" id="realtime-counter">
+                                ~0 tokens
+                            </div>
+                            <button type="button" class="w-8 h-8 bg-accent hover:bg-opacity-90 text-bg-primary rounded-lg flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed" id="send-btn" title="Add Message">
+                                <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <ul id="composer-file-list" class="flex flex-wrap gap-2"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspector Panel (Right Panel) -->
+    <aside class="w-[280px] bg-bg-surface flex flex-col h-full shrink-0 overflow-y-auto custom-scrollbar">
+        <div class="p-6 flex flex-col gap-8">
+            <!-- Section: Thread Summary -->
+            <section class="flex flex-col gap-4">
+                <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-widest">Thread Summary</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-bg-elevated border border-border-subtle rounded-lg p-3 flex flex-col gap-1">
+                        <span class="text-[10px] text-text-muted uppercase font-bold">Total Tokens</span>
+                        <span class="text-2xl font-bold text-text-primary" id="inspector-total-tokens">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Analysis Details -->
+            <section class="flex flex-col gap-4">
+                <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-widest">Analysis Details</h3>
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-text-muted">Messages</span>
+                        <span class="text-text-primary font-mono" id="inspector-msg-count">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-text-muted">Avg. Tokens / Msg</span>
+                        <span class="text-text-primary font-mono" id="inspector-avg-tokens">0</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-text-muted">Files Attached</span>
+                        <span class="text-text-primary font-mono" id="inspector-file-count">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Actions -->
+            <section class="flex flex-col gap-4 mt-4">
+                <h3 class="text-[10px] font-bold text-text-muted uppercase tracking-widest">Actions</h3>
+                <div class="flex flex-col gap-2">
+                    <button type="button" class="w-full flex items-center gap-3 px-3 py-2 bg-bg-elevated hover:bg-bg-hover border border-border-subtle rounded-lg text-xs font-bold text-text-primary transition-all disabled:opacity-30" id="count-btn" disabled>
+                        <i data-lucide="calculator" class="w-4 h-4 text-accent"></i>
+                        <span>Calculate tokens</span>
+                    </button>
+                    <button type="button" class="w-full flex items-center gap-3 px-3 py-2 bg-bg-elevated hover:bg-bg-hover border border-border-subtle rounded-lg text-xs font-bold text-text-primary transition-all" id="export-json-btn">
+                        <i data-lucide="download" class="w-4 h-4 text-text-muted"></i>
+                        <span>Export JSON</span>
+                    </button>
+                    <button type="button" class="w-full flex items-center gap-3 px-3 py-2 bg-bg-elevated hover:bg-bg-hover border border-border-subtle rounded-lg text-xs font-bold text-text-primary transition-all" id="copy-stats-btn">
+                        <i data-lucide="copy" class="w-4 h-4 text-text-muted"></i>
+                        <span>Copy Statistics</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </aside>
+</div>
+
+<div id="results" class="hidden"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set active_mode = "input" %}
+
+{% block title %}Input Mode — Tokky{% endblock %}
+
+{% block content %}
+<div class="h-full flex flex-col">
+    <!-- Header -->
+    <header class="shrink-0 px-6 py-4 border-b border-border-subtle bg-bg-primary">
+        <h2 class="text-sm font-bold text-text-primary uppercase tracking-tight">Input Mode</h2>
+    </header>
+
+    <div class="flex-1 p-8 flex flex-col max-w-5xl mx-auto w-full gap-8">
+        <section class="shrink-0">
+            <h1 class="text-3xl font-bold text-text-primary tracking-tight mb-2">Mass Token Analysis</h1>
+            <p class="text-sm text-text-secondary">Upload multiple files to get a detailed breakdown of token consumption.</p>
+        </section>
+
+        <div class="flex-1 flex flex-col gap-6 min-h-0">
+            <!-- Upload Zone -->
+            <form id="input-form" enctype="multipart/form-data" class="flex-1 flex flex-col gap-6 overflow-hidden">
+                <div class="shrink-0 h-48 relative border-2 border-dashed border-border-default bg-bg-surface hover:bg-bg-elevated hover:border-accent rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group" id="upload-zone">
+                    <input type="file" id="file-input" name="files" multiple
+                           accept=".{{ allowed_extensions | join(',.') }}" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <div class="w-12 h-12 bg-bg-elevated rounded-xl flex items-center justify-center border border-border-subtle group-hover:border-accent group-hover:scale-110 transition-all duration-300">
+                            <i data-lucide="upload-cloud" class="w-6 h-6 text-text-muted group-hover:text-accent"></i>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-bold text-text-primary">Click or drag files here</p>
+                            <p class="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Supported: .{{ allowed_extensions | join(', .') }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- File List -->
+                <div class="flex-1 min-h-0 bg-bg-surface border border-border-subtle rounded-2xl flex flex-col overflow-hidden">
+                    <div class="px-4 py-2 bg-bg-elevated/50 border-b border-border-subtle flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-text-muted uppercase tracking-widest">Selected Files</span>
+                        <span class="text-[10px] font-mono text-accent" id="file-count">0 files</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                        <ul id="file-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></ul>
+                        <div id="file-list-empty" class="h-full flex flex-col items-center justify-center opacity-20">
+                            <i data-lucide="files" class="w-12 h-12 mb-2"></i>
+                            <p class="text-xs font-bold uppercase tracking-widest">No files selected</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Button -->
+                <div class="shrink-0 flex justify-center mt-2">
+                    <button type="submit" class="inline-flex items-center gap-3 px-10 py-3 bg-accent hover:bg-opacity-90 text-bg-primary font-bold text-sm uppercase tracking-widest rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-accent/10" id="analyze-btn" disabled>
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                        <span>Analyze All Files</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="results" class="hidden"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/input.js') }}"></script>
+{% endblock %}
