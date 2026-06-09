@@ -64,7 +64,7 @@ def api_analyze_files():
 
 @app.route("/api/analyze/chat", methods=["POST"])
 def api_analyze_chat():
-    provider = request.form.get("provider", "Universal Mode")
+    provider = request.form.get("provider", "Standard Estimate")
     model = request.form.get("model", MODELS[provider][0])
 
     try:

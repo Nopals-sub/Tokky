@@ -12,7 +12,7 @@ A Flask web app to estimate AI token usage for documents and simulated conversat
 - **Broad format support** — PDF, PPTX, plain text, Markdown, HTML, JSON, CSV, XML, YAML, source code, and images
 - **Image-aware counting** — Extracts and counts significant images from PDF and PPTX (with deduplication)
 - **Multiple Methods:**
-  - **Universal Mode** — Heuristic token range (safe estimate across various models)
+  - **Standard Estimate** — Heuristic token range (safe estimate across various models)
   - **BPE** — Byte Pair Encoding via `tiktoken` (`cl100k_base`, `o200k_base`, etc.)
 - **Context window tracking** — Shows usage percentage against each tokenizer's context limit with warnings
 - **Session Management** — Persists chat sessions using localStorage for continuity
@@ -48,7 +48,7 @@ Both roles support text and file uploads (e.g. user uploads a PDF, AI "returns" 
 
 | Method | Tokenizers | Context Limit |
 |----------|--------|---------------|
-| Universal | Safe Range (heuristic) | 128K |
+| Standard Estimate | Standard (Heuristic) | 128K |
 | BPE | cl100k_base, o200k_base, p50k_base, r50k_base | 8K – 128K |
 
 ## Requirements
@@ -107,7 +107,7 @@ Open `http://localhost:5050` in your browser.
 
 ### Text
 
-- **Universal Mode** — Estimates a min/max range using character heuristics (1 token ≈ 2.5–5.5 characters)
+- **Standard Estimate** — Estimates a min/max range using character heuristics (1 token ≈ 2.5–5.5 characters)
 - **BPE** — Uses `tiktoken` Byte Pair Encoding with the selected encoding (e.g. `cl100k_base` for GPT-4 class models)
 
 ### Chat Mode

@@ -19,7 +19,7 @@ function updateContextInfo() {
     const provider = providerSelect.value;
     
     let subtext = "";
-    if (provider === "Universal Mode") {
+    if (provider === "Standard Estimate") {
         subtext = "Heuristic range (chars/4) + images.";
     } else if (provider === "BPE") {
         subtext = "Byte Pair Encoding via tiktoken.";

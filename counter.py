@@ -2,7 +2,7 @@ import tiktoken
 
 # Model context window limits
 MODEL_LIMITS = {
-    "Universal (Safe Range)": 128000,
+    "Standard (Heuristic)": 128000,
     "cl100k_base": 128000,
     "o200k_base": 128000,
     "p50k_base": 16385,
@@ -29,7 +29,7 @@ def get_token_count(text, image_count, provider, model):
     if not text and image_count == 0:
         return 0, 0
     
-    if provider == "Universal Mode":
+    if provider == "Standard Estimate":
         return get_universal_range(text, image_count)
     
     # Text tokens

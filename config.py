@@ -1,7 +1,7 @@
-PROVIDERS = ["Universal Mode", "BPE"]
+PROVIDERS = ["Standard Estimate", "BPE"]
 
 MODELS = {
-    "Universal Mode": ["Universal (Safe Range)"],
+    "Standard Estimate": ["Standard (Heuristic)"],
     "BPE": ["cl100k_base", "o200k_base", "p50k_base", "r50k_base"],
 }
 
