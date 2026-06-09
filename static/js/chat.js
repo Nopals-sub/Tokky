@@ -118,6 +118,19 @@ function attachMessage() {
 
 sendBtn.addEventListener("click", attachMessage);
 
+// --- MARKDOWN CONFIG ---
+if (window.marked && window.hljs) {
+    marked.setOptions({
+        highlight: function(code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+        },
+        langPrefix: 'hljs language-',
+        breaks: true,
+        gfm: true
+    });
+}
+
 function renderConversation() {
     if (!messages.length) {
         emptyHint.style.display = "flex";
@@ -143,9 +156,14 @@ function renderConversation() {
             ? `<div class="flex flex-wrap gap-2 mt-3">${msg.files.map(f => `<span class="flex items-center gap-1.5 px-2 py-1 bg-bg-primary/50 border border-border-subtle rounded text-[10px] font-bold text-text-secondary"><i data-lucide="paperclip" class="w-3 h-3 text-accent"></i>${escapeHtml(f.name)}</span>`).join("")}</div>`
             : "";
             
-        const textHtml = msg.text
-            ? `<div class="whitespace-pre-wrap leading-relaxed text-sm font-medium ${isUser ? 'text-text-primary' : 'text-text-primary'}">${escapeHtml(msg.text)}</div>`
-            : "";
+        let textHtml = "";
+        if (msg.text) {
+            if (window.marked) {
+                textHtml = `<div class="prose-chat ${isUser ? 'text-text-primary' : 'text-text-primary'}">${marked.parse(msg.text)}</div>`;
+            } else {
+                textHtml = `<div class="whitespace-pre-wrap leading-relaxed text-sm font-medium ${isUser ? 'text-text-primary' : 'text-text-primary'}">${escapeHtml(msg.text)}</div>`;
+            }
+        }
             
         const label = msg.role.toUpperCase();
         
