@@ -19,6 +19,8 @@ const inspectorMsgCount = document.getElementById("inspector-msg-count");
 const inspectorAvgTokens = document.getElementById("inspector-avg-tokens");
 const inspectorFileCount = document.getElementById("inspector-file-count");
 const exportJsonBtn = document.getElementById("export-json-btn");
+const importJsonBtn = document.getElementById("import-json-btn");
+const importJsonInput = document.getElementById("import-json-input");
 const copyStatsBtn = document.getElementById("copy-stats-btn");
 
 // Context Bar Elements
@@ -414,6 +416,54 @@ exportJsonBtn.addEventListener("click", () => {
     a.href = url;
     a.download = `token-counter-session-${new Date().getTime()}.json`;
     a.click();
+});
+
+importJsonBtn.addEventListener("click", () => {
+    importJsonInput.click();
+});
+
+importJsonInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const data = JSON.parse(event.target.result);
+            if (!data.messages || !Array.isArray(data.messages)) {
+                throw new Error("Invalid JSON format: missing messages array.");
+            }
+
+            // Restore session
+            messages = data.messages;
+            lastResults = data.results || null;
+            currentSessionId = "session_" + Date.now(); // Create a new session from import
+
+            // Update UI
+            const firstMsg = messages.find(m => m.text);
+            const title = firstMsg ? firstMsg.text.substring(0, 30) + (firstMsg.text.length > 30 ? "..." : "") : "Imported Session";
+            document.getElementById("session-name").textContent = title;
+
+            renderConversation();
+            if (lastResults) {
+                const { model } = getSettings();
+                const limit = MODEL_LIMITS[model] || 128000;
+                updateContextBar(lastResults.total_max, limit);
+                updateInspector(lastResults);
+            } else {
+                updateInspector(null);
+                updateContextBar(0, 128000);
+            }
+            
+            saveSession();
+            alert("Chat imported successfully!");
+        } catch (err) {
+            alert("Error importing JSON: " + err.message);
+        } finally {
+            importJsonInput.value = "";
+        }
+    };
+    reader.readAsText(file);
 });
 
 copyStatsBtn.addEventListener("click", () => {
